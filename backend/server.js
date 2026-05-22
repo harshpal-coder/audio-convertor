@@ -35,16 +35,24 @@ if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir);
 }
 const ytDlpPath = path.join(binDir, process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
+const cookiesPath = path.join(__dirname, 'cookies.txt');
+const hasCookies = fs.existsSync(cookiesPath);
 
 console.log('--- SonicTube System Configuration ---');
 console.log('FFmpeg Static Path:', ffmpegStatic);
 console.log('yt-dlp Path:', ytDlpPath);
+console.log('cookies.txt Path:', cookiesPath);
+console.log('cookies.txt exists:', hasCookies);
 console.log('--------------------------------------');
 
 // Helper to fetch playlist info using flat-playlist (extremely fast!)
 function getPlaylistInfo(url) {
     return new Promise((resolve, reject) => {
         const args = [url, '--flat-playlist', '-J'];
+        if (fs.existsSync(cookiesPath)) {
+            args.push('--cookies', cookiesPath);
+            console.log('Using cookies.txt for playlist metadata extraction.');
+        }
         const ytDlpProcess = spawn(ytDlpPath, args);
         let stdout = '';
         let stderr = '';
@@ -170,7 +178,12 @@ app.get('/api/info', async (req, res) => {
     // Default to fetching single video info
     try {
         const ytDlpWrap = new YTDlpWrap(ytDlpPath);
-        const metadata = await ytDlpWrap.getVideoInfo(url);
+        let infoArgs = [url];
+        if (fs.existsSync(cookiesPath)) {
+            infoArgs.push('--cookies', cookiesPath);
+            console.log('Using cookies.txt for single video metadata extraction.');
+        }
+        const metadata = await ytDlpWrap.getVideoInfo(infoArgs);
         
         const responseData = {
             isPlaylist: false,
@@ -241,6 +254,11 @@ app.post('/api/convert', (req, res) => {
         '--ffmpeg-location', ffmpegStatic,
         '-o', outputTemplate
     ];
+
+    if (fs.existsSync(cookiesPath)) {
+        args.push('--cookies', cookiesPath);
+        console.log('Using cookies.txt for audio extraction & download.');
+    }
 
     if (isPlaylist) {
         args.push('--ignore-errors'); // Don't crash the whole playlist download if a video fails
