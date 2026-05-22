@@ -14,8 +14,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Root endpoint to verify server status
+app.get('/', (req, res) => {
+    res.json({ status: 'active', message: 'SonicTube API Server is running!' });
+});
 
 // Ensure downloads directory exists
 const downloadsDir = path.join(__dirname, 'downloads');
