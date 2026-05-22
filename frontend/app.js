@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? '' 
         : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:3000' 
-            : 'https://your-production-backend-url.com'); // Replace with your production backend URL (e.g. on Render or Railway)
+            : 'https://audio-convertor.onrender.com'); // User's Render production backend URL
     let currentVideoData = null;
     let sseConnection = null;
     const ringCircumference = 439.8; // 2 * pi * 70 (r=70 in SVG)
