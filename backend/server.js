@@ -245,6 +245,54 @@ app.get('/api/info', async (req, res) => {
     }
 });
 
+// Diagnostic endpoint to test binary execution on Render container
+app.get('/api/test-binaries', async (req, res) => {
+    const runCmd = (cmdPath, args) => {
+        return new Promise((resolve) => {
+            if (!fs.existsSync(cmdPath)) {
+                return resolve({ exists: false, error: 'Binary file does not exist.' });
+            }
+            const proc = spawn(cmdPath, args);
+            let stdout = '';
+            let stderr = '';
+            proc.stdout.on('data', (d) => stdout += d.toString());
+            proc.stderr.on('data', (d) => stderr += d.toString());
+            proc.on('close', (code) => {
+                resolve({
+                    exists: true,
+                    code,
+                    stdout: stdout.trim().slice(0, 1000),
+                    stderr: stderr.trim().slice(0, 1000)
+                });
+            });
+            proc.on('error', (err) => {
+                resolve({
+                    exists: true,
+                    error: err.message
+                });
+            });
+        });
+    };
+
+    try {
+        const results = {
+            platform: process.platform,
+            arch: process.arch,
+            nodeVersion: process.version,
+            cookiesExist: hasCookies,
+            cookiesResolvedPath: cookiesPath,
+            binDirExists: fs.existsSync(binDir),
+            binContents: fs.existsSync(binDir) ? fs.readdirSync(binDir) : [],
+            ytDlp: await runCmd(ytDlpPath, ['--version']),
+            ffmpeg: await runCmd(path.join(binDir, 'ffmpeg'), ['-version']),
+            ffprobe: await runCmd(path.join(binDir, 'ffprobe'), ['-version'])
+        };
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // 2. Endpoint to initiate a background download and conversion task
 app.post('/api/convert', (req, res) => {
     const { url, format = 'mp3', quality = '320k', title, artist, isPlaylist = false } = req.body;
