@@ -163,7 +163,7 @@ app.get('/api/info', async (req, res) => {
             return res.json(responseData);
         } catch (err) {
             console.error('Error fetching playlist info:', err.message);
-            return res.status(500).json({ error: 'Failed to retrieve playlist metadata. Make sure the URL is public and correct.' });
+            return res.status(500).json({ error: `Failed to retrieve playlist metadata: ${err.message}` });
         }
     }
 
@@ -188,7 +188,7 @@ app.get('/api/info', async (req, res) => {
         return res.json(responseData);
     } catch (err) {
         console.error('Error fetching video info:', err.message);
-        return res.status(500).json({ error: 'Failed to retrieve video metadata. Make sure the URL is correct and public.' });
+        return res.status(500).json({ error: `Failed to retrieve video metadata: ${err.message}` });
     }
 });
 
