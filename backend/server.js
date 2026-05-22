@@ -63,7 +63,7 @@ console.log('--------------------------------------');
 // Helper to fetch playlist info using flat-playlist (extremely fast!)
 function getPlaylistInfo(url) {
     return new Promise((resolve, reject) => {
-        const args = [url, '--flat-playlist', '-J'];
+        const args = [url, '--flat-playlist', '-J', '--js-runtimes', 'node'];
         if (cookiesPath) {
             args.push('--cookies', cookiesPath);
             console.log(`Using cookies.txt from: ${cookiesPath} for playlist metadata extraction.`);
@@ -193,7 +193,7 @@ app.get('/api/info', async (req, res) => {
     // Default to fetching single video info
     try {
         const ytDlpWrap = new YTDlpWrap(ytDlpPath);
-        let infoArgs = [url];
+        let infoArgs = [url, '--js-runtimes', 'node'];
         if (cookiesPath) {
             infoArgs.push('--cookies', cookiesPath);
             console.log(`Using cookies.txt from: ${cookiesPath} for single video metadata extraction.`);
@@ -267,7 +267,8 @@ app.post('/api/convert', (req, res) => {
         '-x',
         '--audio-format', ext,
         '--ffmpeg-location', ffmpegStatic,
-        '-o', outputTemplate
+        '-o', outputTemplate,
+        '--js-runtimes', 'node'
     ];
 
     if (cookiesPath) {
