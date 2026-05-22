@@ -29,19 +29,34 @@ if (!fs.existsSync(downloadsDir)) {
 const tasks = {};
 const activeClients = {}; // SSE clients list
 
+// Helper to find cookies.txt in multiple fallback locations
+function getCookiesPath() {
+    const searchPaths = [
+        path.join(__dirname, 'cookies.txt'),          // backend/cookies.txt
+        path.join(__dirname, '../cookies.txt'),       // root/cookies.txt
+        '/etc/secrets/cookies.txt'                    // Render absolute secrets path
+    ];
+    for (const p of searchPaths) {
+        if (fs.existsSync(p)) {
+            return p;
+        }
+    }
+    return null;
+}
+
 // Setup paths
 const binDir = path.join(__dirname, 'bin');
 if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir);
 }
 const ytDlpPath = path.join(binDir, process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
-const cookiesPath = path.join(__dirname, 'cookies.txt');
-const hasCookies = fs.existsSync(cookiesPath);
+const cookiesPath = getCookiesPath();
+const hasCookies = !!cookiesPath;
 
 console.log('--- SonicTube System Configuration ---');
 console.log('FFmpeg Static Path:', ffmpegStatic);
 console.log('yt-dlp Path:', ytDlpPath);
-console.log('cookies.txt Path:', cookiesPath);
+console.log('cookies.txt Path:', cookiesPath || 'None found');
 console.log('cookies.txt exists:', hasCookies);
 console.log('--------------------------------------');
 
@@ -49,9 +64,9 @@ console.log('--------------------------------------');
 function getPlaylistInfo(url) {
     return new Promise((resolve, reject) => {
         const args = [url, '--flat-playlist', '-J'];
-        if (fs.existsSync(cookiesPath)) {
+        if (cookiesPath) {
             args.push('--cookies', cookiesPath);
-            console.log('Using cookies.txt for playlist metadata extraction.');
+            console.log(`Using cookies.txt from: ${cookiesPath} for playlist metadata extraction.`);
         }
         const ytDlpProcess = spawn(ytDlpPath, args);
         let stdout = '';
@@ -179,9 +194,9 @@ app.get('/api/info', async (req, res) => {
     try {
         const ytDlpWrap = new YTDlpWrap(ytDlpPath);
         let infoArgs = [url];
-        if (fs.existsSync(cookiesPath)) {
+        if (cookiesPath) {
             infoArgs.push('--cookies', cookiesPath);
-            console.log('Using cookies.txt for single video metadata extraction.');
+            console.log(`Using cookies.txt from: ${cookiesPath} for single video metadata extraction.`);
         }
         const metadata = await ytDlpWrap.getVideoInfo(infoArgs);
         
@@ -255,9 +270,9 @@ app.post('/api/convert', (req, res) => {
         '-o', outputTemplate
     ];
 
-    if (fs.existsSync(cookiesPath)) {
+    if (cookiesPath) {
         args.push('--cookies', cookiesPath);
-        console.log('Using cookies.txt for audio extraction & download.');
+        console.log(`Using cookies.txt from: ${cookiesPath} for audio extraction & download.`);
     }
 
     if (isPlaylist) {
