@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonicTube - Premium YouTube to MP3 Converter</title>
+    <meta name="description"
+        content="Convert YouTube videos to high-quality MP3 or M4A audio instantly with real-time conversion stats and custom metadata tagging.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Animated background mesh -->
+    <div class="bg-mesh">
+        <div class="mesh-orb orb-1"></div>
+        <div class="mesh-orb orb-2"></div>
+        <div class="mesh-orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header Logo -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-headphones"></i>
+                </div>
+                <h1>Sonic<span>Tube</span></h1>
+            </div>
+            <p class="tagline">Extract high-fidelity audio streams in seconds</p>
+        </header>
+
+        <!-- Main Glass Card -->
+        <main class="glass-card">
+
+            <!-- STATE 0: Input Stage -->
+            <div id="state-input" class="state-view active">
+                <div class="input-intro">
+                    <h2>Convert YouTube to Audio</h2>
+                    <p>Enter any YouTube URL below to extract high-quality audio formats.</p>
+                </div>
+
+                <form id="url-form" class="url-input-group">
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link input-icon"></i>
+                        <input type="url" id="youtube-url" placeholder="Paste YouTube link here..." required
+                            autocomplete="off">
+                        <button type="button" id="clear-btn" class="clear-btn" style="display: none;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button type="submit" id="fetch-btn" class="glow-btn">
+                        <span class="btn-text">Fetch Video</span>
+                        <span class="btn-loader" style="display: none;"><i
+                                class="fa-solid fa-spinner fa-spin"></i></span>
+                    </button>
+                </form>
+
+                <div class="features-badge">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Ultra Fast Conversion</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Custom Metadata</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>No Ads or Malware</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE 1: Configuration & Metadata Edit Stage -->
+            <div id="state-config" class="state-view">
+                <div class="back-navigation">
+                    <button id="config-back-btn" class="text-btn">
+                        <i class="fa-solid fa-arrow-left"></i> Change URL
+                    </button>
+                </div>
+
+                <div id="playlist-prompt-banner" class="playlist-prompt-banner" style="display: none;">
+                    <div class="banner-content">
+                        <i class="fa-solid fa-rectangle-list banner-icon"></i>
+                        <div>
+                            <h5>Part of a Playlist</h5>
+                            <p>This video belongs to a playlist. Would you like to convert the entire playlist instead?</p>
+                        </div>
+                    </div>
+                    <button id="convert-playlist-instead-btn" class="outline-btn btn-sm">Convert Playlist</button>
+                </div>
+
+                <div class="video-preview-card">
+                    <div class="video-thumbnail-wrapper">
+                        <img id="video-thumbnail" src="" alt="Video Thumbnail">
+                        <span id="video-duration" class="duration-badge">00:00</span>
+                    </div>
+                    <div class="video-details">
+                        <h3 id="raw-video-title">YouTube Video Title</h3>
+                        <p id="raw-video-channel" class="channel-name"><i class="fa-solid fa-circle-check"></i> Channel
+                            Name</p>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <!-- Audio Format and Quality Options -->
+                    <div class="options-section">
+                        <h4>Audio Format</h4>
+                        <div class="segmented-control" id="format-selector">
+                            <label class="segment-pill active">
+                                <input type="radio" name="format" value="mp3" checked>
+                                <span>MP3 <small>(Universal)</small></span>
+                            </label>
+                            <label class="segment-pill">
+                                <input type="radio" name="format" value="m4a">
+                                <span>M4A <small>(Fastest)</small></span>
+                            </label>
+                        </div>
+
+                        <div id="quality-wrapper">
+                            <h4>Audio Quality</h4>
+                            <div class="segmented-control" id="quality-selector">
+                                <label class="segment-pill active">
+                                    <input type="radio" name="quality" value="320k" checked>
+                                    <span>320 kbps <small>High</small></span>
+                                </label>
+                                <label class="segment-pill">
+                                    <input type="radio" name="quality" value="256k">
+                                    <span>256 kbps <small>Medium</small></span>
+                                </label>
+                                <label class="segment-pill">
+                                    <input type="radio" name="quality" value="128k">
+                                    <span>128 kbps <small>Eco</small></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Customization Section -->
+                    <div class="metadata-section" id="metadata-section">
+                        <h4>Edit Audio Tags <span class="tag-badge">Optional</span></h4>
+                        <div class="form-group">
+                            <label for="meta-title">Song Title</label>
+                            <div class="field-wrapper">
+                                <i class="fa-solid fa-music field-icon"></i>
+                                <input type="text" id="meta-title" placeholder="Enter song title">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="meta-artist">Artist / Channel</label>
+                            <div class="field-wrapper">
+                                <i class="fa-solid fa-user field-icon"></i>
+                                <input type="text" id="meta-artist" placeholder="Enter artist name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Tracks Section (displayed only for playlists) -->
+                    <div id="playlist-section" class="playlist-section" style="display: none;">
+                        <h4>Playlist Tracks <span class="tag-badge"><span id="playlist-track-count">0</span> tracks</span></h4>
+                        <div class="playlist-tracks-list" id="playlist-tracks-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <button id="convert-btn" class="glow-btn convert-action-btn">
+                    <i class="fa-solid fa-circle-down"></i> Convert to Audio
+                </button>
+            </div>
+
+            <!-- STATE 2: Conversion / Progress Stage -->
+            <div id="state-progress" class="state-view">
+                <div class="progress-container">
+                    <!-- SVG Circular Progress Ring -->
+                    <div class="circular-progress-wrapper">
+                        <svg class="progress-ring" width="160" height="160">
+                            <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.05)" stroke-width="8"
+                                fill="transparent" r="70" cx="80" cy="80" />
+                            <circle class="progress-ring-bar" stroke="url(#gradient)" stroke-width="8"
+                                stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"
+                                fill="transparent" r="70" cx="80" cy="80" />
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#a855f7" />
+                                    <stop offset="100%" stop-color="#06b6d4" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="progress-percentage">
+                            <span id="percent-num">0</span><span class="pct">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Animated equalizer wave -->
+                    <div class="wave-visualizer">
+                        <div class="bar bar-1"></div>
+                        <div class="bar bar-2"></div>
+                        <div class="bar bar-3"></div>
+                        <div class="bar bar-4"></div>
+                        <div class="bar bar-5"></div>
+                        <div class="bar bar-6"></div>
+                        <div class="bar bar-7"></div>
+                        <div class="bar bar-8"></div>
+                    </div>
+
+                    <div class="status-info">
+                        <h3 id="status-title">Processing video stream...</h3>
+                        <p id="status-subtitle">Connecting to server</p>
+                    </div>
+
+                    <!-- Detailed speed metrics -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Download Speed</span>
+                            <span class="metric-value" id="metric-speed">0.0 MB/s</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Time Remaining</span>
+                            <span class="metric-value" id="metric-eta">00:00</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Audio File Size</span>
+                            <span class="metric-value" id="metric-size">0.0 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE 3: Success & Download Stage -->
+            <div id="state-success" class="state-view">
+                <div class="success-header">
+                    <div class="success-icon-wrapper">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h2>Conversion Successful!</h2>
+                    <p>Your audio track is processed and ready to save.</p>
+                </div>
+
+                <div class="download-summary-card">
+                    <div class="completed-video-info">
+                        <i id="success-file-icon" class="fa-solid fa-file-audio file-music-icon"></i>
+                        <div class="file-details">
+                            <span id="success-file-label" class="file-label">Ready File</span>
+                            <h3 id="success-file-name">Artist - Title.mp3</h3>
+                            <p id="success-file-meta"><span id="success-format">MP3</span> • <span id="success-size">0.0
+                                    MB</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-actions">
+                    <a id="download-link" href="#" class="glow-btn download-action-btn">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> Download Now
+                    </a>
+                    <button id="reset-btn" class="outline-btn">
+                        <i class="fa-solid fa-rotate-left"></i> Convert Another Video
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="app-footer">
+            <p>Made by Harsh Pal</p>
+            <p class="disclaimer">Instagram Handle : <a href="https://instagram.com/harshh.on" target="_blank"
+                    rel="noopener noreferrer">@harshh.on</a></p>
+        </footer>
+    </div>
+
+    <!-- Error Toast Notification -->
+    <div id="error-toast" class="toast">
+        <div class="toast-content">
+            <i class="fa-solid fa-triangle-exclamation toast-icon"></i>
+            <div class="toast-message">
+                <h4>System Error</h4>
+                <p id="toast-err-text">Unable to process video.</p>
+            </div>
+            <button id="close-toast-btn" class="toast-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- Core Script -->
+    <script src="app.js"></script>
+</body>
+
+</html>

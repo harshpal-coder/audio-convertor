@@ -1,0 +1,9 @@
+{
+  "name": "convertor-frontend",
+  "version": "1.0.0",
+  "description": "Frontend static server of SonicTube",
+  "scripts": {
+    "start": "npx http-server -p 5000 -c-1",
+    "dev": "npx http-server -p 5000 -c-1"
+  }
+}

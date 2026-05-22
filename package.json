@@ -1,0 +1,12 @@
+{
+  "name": "convertor-root",
+  "version": "1.0.0",
+  "description": "Root workspace of Media Converter",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
