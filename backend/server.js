@@ -107,6 +107,16 @@ async function setupYtDlp() {
             console.log('yt-dlp binary found.');
         }
         
+        // Ensure the downloaded binary has executable permissions on non-Windows platforms (CORS/Linux hosting like Render)
+        if (process.platform !== 'win32') {
+            try {
+                fs.chmodSync(ytDlpPath, '755');
+                console.log('Set executable permissions (chmod +x) on yt-dlp binary.');
+            } catch (chmodErr) {
+                console.error('Failed to set executable permissions on yt-dlp:', chmodErr.message);
+            }
+        }
+
         const ytDlpWrap = new YTDlpWrap(ytDlpPath);
         const version = await ytDlpWrap.getVersion();
         console.log(`SonicTube ready! yt-dlp version: ${version.trim()}`);
