@@ -53,8 +53,13 @@ const ytDlpPath = path.join(binDir, process.platform === 'win32' ? 'yt-dlp.exe' 
 const cookiesPath = getCookiesPath();
 const hasCookies = !!cookiesPath;
 
+const localFfmpegExists = fs.existsSync(path.join(binDir, 'ffmpeg')) && fs.existsSync(path.join(binDir, 'ffprobe'));
+const ffmpegLocation = localFfmpegExists ? binDir : ffmpegStatic;
+
 console.log('--- SonicTube System Configuration ---');
 console.log('FFmpeg Static Path:', ffmpegStatic);
+console.log('Local static FFmpeg/FFprobe exist:', localFfmpegExists);
+console.log('FFmpeg Location used:', ffmpegLocation);
 console.log('yt-dlp Path:', ytDlpPath);
 console.log('cookies.txt Path:', cookiesPath || 'None found');
 console.log('cookies.txt exists:', hasCookies);
@@ -137,6 +142,26 @@ async function setupYtDlp() {
                 console.log('Set executable permissions (chmod +x) on yt-dlp binary.');
             } catch (chmodErr) {
                 console.error('Failed to set executable permissions on yt-dlp:', chmodErr.message);
+            }
+            
+            try {
+                const ffmpegPath = path.join(binDir, 'ffmpeg');
+                if (fs.existsSync(ffmpegPath)) {
+                    fs.chmodSync(ffmpegPath, '755');
+                    console.log('Set executable permissions (chmod +x) on ffmpeg binary.');
+                }
+            } catch (chmodErr) {
+                console.error('Failed to set executable permissions on ffmpeg:', chmodErr.message);
+            }
+
+            try {
+                const ffprobePath = path.join(binDir, 'ffprobe');
+                if (fs.existsSync(ffprobePath)) {
+                    fs.chmodSync(ffprobePath, '755');
+                    console.log('Set executable permissions (chmod +x) on ffprobe binary.');
+                }
+            } catch (chmodErr) {
+                console.error('Failed to set executable permissions on ffprobe:', chmodErr.message);
             }
         }
 
@@ -266,7 +291,7 @@ app.post('/api/convert', (req, res) => {
         url,
         '-x',
         '--audio-format', ext,
-        '--ffmpeg-location', ffmpegStatic,
+        '--ffmpeg-location', ffmpegLocation,
         '-o', outputTemplate,
         '--js-runtimes', 'node'
     ];
